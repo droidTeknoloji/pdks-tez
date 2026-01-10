@@ -80,9 +80,11 @@ static void attachConfigRoutes(ESP8266WebServer& server,
                    : (WiFi.isConnected() ? WiFi.localIP() : WiFi.softAPIP());
     String ipStr = ip.toString();
 
-    String wifiMac = WiFi.macAddress();
+    uint8_t wifiMacBytes[6];
     uint8_t ethMacBytes[6];
+    buildWifiMac(cfg, wifiMacBytes);
     buildEthMac(cfg, ethMacBytes);
+    String wifiMac = macToString(wifiMacBytes);
     String ethMac = macToString(ethMacBytes);
 
     String html;

@@ -10,6 +10,10 @@
 #include <LittleFS.h>
 #include <stdlib.h>
 
+extern "C" {
+#include "user_interface.h"
+}
+
 #include "ConfigSchema.h"
 #include "Web.h"        // ESP32’deki gibi: /config UI + AP portal burada
 
@@ -60,9 +64,9 @@ bool offlinePop();
 uint16_t offlinePendingCount();
 void offlineClear();
 
-bool sendPunchTCP(const Config &cfg, const String &cardHex, uint8_t punchType, uint32_t ts);
-void punchNowOrQueue(const Config &cfg, const String &cardHex, uint8_t punchType);
-void flushOfflinePunches(const Config &cfg);
+bool sendPunchTCP(const ::Config &cfg, const String &cardHex, uint8_t punchType, uint32_t ts);
+void punchNowOrQueue(const ::Config &cfg, const String &cardHex, uint8_t punchType);
+void flushOfflinePunches(const ::Config &cfg);
 
 void initRDM6300();
 void rdmLoop();
@@ -216,6 +220,10 @@ bool startWiFiFromConfig(const NetConfig &net) {
   WiFi.mode(WIFI_STA);
   WiFi.disconnect(true);
   delay(100);
+
+  uint8_t macw[6];
+  buildWifiMac(cfg, macw);
+  wifi_set_macaddr(STATION_IF, macw);
 
   if (net.ip.length()) {
     IPAddress ip;
@@ -1211,7 +1219,7 @@ static uint32_t cardHexToUint(const String &cardHex)
     return val;
 }
 
-bool sendPunchTCP(const Config &cfg, const String &cardHex, uint8_t punchType, uint32_t ts)
+bool sendPunchTCP(const ::Config &cfg, const String &cardHex, uint8_t punchType, uint32_t ts)
 {
     IPAddress serverIP;
     if (!serverIP.fromString(cfg.pdks.server_host)) {
@@ -1255,7 +1263,7 @@ bool sendPunchTCP(const Config &cfg, const String &cardHex, uint8_t punchType, u
     return true;
 }
 
-void punchNowOrQueue(const Config &cfg, const String &cardHex, uint8_t punchType)
+void punchNowOrQueue(const ::Config &cfg, const String &cardHex, uint8_t punchType)
 {
     uint32_t ts = nowTs();
     if (ts == 0) {
@@ -1279,7 +1287,7 @@ void punchNowOrQueue(const Config &cfg, const String &cardHex, uint8_t punchType
     Serial.println("[PUNCH] SEND OK");
 }
 
-void flushOfflinePunches(const Config &cfg)
+void flushOfflinePunches(const ::Config &cfg)
 {
     if (!netCanSendNow()) {
         Serial.println("[FLUSH] netCanSendNow=FALSE, flush skip");
