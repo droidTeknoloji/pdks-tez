@@ -5,16 +5,18 @@
 // ----------------------------------------------------
 //  GLOBAL DEVICE ID - tek merkez
 // ----------------------------------------------------
-static const char* DEVICE_ID = "PDKS_02";
+static const char* DEVICE_ID = "PDKS_03";
 
 struct OfflineIndex;
 
+inline uint16_t getSerialFromDeviceNo(const String& devNo);
+
 // Disable sifresi: 010203 + DEVICE_ID son 4 hane
 inline String getDisablePassword() {
-    String idStr(DEVICE_ID);
-    if (idStr.length() < 2) return "0102030000";
-    String numPart = idStr.substring(idStr.length() - 2);
-    return "010203" + numPart;
+    uint16_t serial = getSerialFromDeviceNo(String(DEVICE_ID));
+    char buf[5];
+    snprintf(buf, sizeof(buf), "%04u", (unsigned)serial);
+    return String("010203") + buf;
 }
 
 // Ag ayarlari
@@ -74,10 +76,17 @@ inline uint16_t getSerialFromDeviceNo(const String& devNo) {
     return (uint16_t)digits.toInt();
 }
 
+// DEVICE_ID icindeki son 4 rakamdan seri numarasi uret
+inline uint16_t getSerialFromDeviceId() {
+    String idStr(DEVICE_ID);
+    return getSerialFromDeviceNo(idStr);
+}
+
 // WiFi icin deterministik MAC uret
 // 02:AA:BB:CA:hi(serial):lo(serial)
 inline void buildWifiMac(const Config& cfg, uint8_t outMac[6]) {
-    uint16_t serial = getSerialFromDeviceNo(cfg.dev.device_no);
+    (void)cfg;
+    uint16_t serial = getSerialFromDeviceId();
 
     outMac[0] = 0x02;
     outMac[1] = 0xAA;
@@ -90,7 +99,8 @@ inline void buildWifiMac(const Config& cfg, uint8_t outMac[6]) {
 // ENC28J60 icin deterministik MAC uret
 // 02:AA:BB:CB:hi(serial):lo(serial)
 inline void buildEthMac(const Config& cfg, uint8_t outMac[6]) {
-    uint16_t serial = getSerialFromDeviceNo(cfg.dev.device_no);
+    (void)cfg;
+    uint16_t serial = getSerialFromDeviceId();
 
     outMac[0] = 0x02;
     outMac[1] = 0xAA;

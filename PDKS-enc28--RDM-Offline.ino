@@ -217,13 +217,19 @@ bool startWiFiFromConfig(const NetConfig &net) {
     return false;
   }
 
+  WiFi.persistent(false);
+  WiFi.mode(WIFI_OFF);
+  delay(100);
+
   WiFi.mode(WIFI_STA);
-  WiFi.disconnect(true);
   delay(100);
 
   uint8_t macw[6];
   buildWifiMac(cfg, macw);
   wifi_set_macaddr(STATION_IF, macw);
+  WiFi.hostname(DEVICE_ID);
+  WiFi.disconnect(true);
+  delay(100);
 
   if (net.ip.length()) {
     IPAddress ip;
