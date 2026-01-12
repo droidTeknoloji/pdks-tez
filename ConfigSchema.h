@@ -5,7 +5,7 @@
 // ----------------------------------------------------
 //  GLOBAL DEVICE ID - tek merkez
 // ----------------------------------------------------
-static const char* DEVICE_ID = "PDKS_03";
+static const char* DEVICE_ID = "PDKS_02";
 
 struct OfflineIndex;
 
